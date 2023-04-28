@@ -35,6 +35,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.common.util.concurrent.ListenableFuture
+import com.shubham0204.ml.depthestimation.util.Logger
+import kotlinx.coroutines.sync.Mutex
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 
@@ -50,7 +52,6 @@ class MainActivity : AppCompatActivity() {
 
     private var isFrontCameraOn = true
     private var isDepthMapDisplayed = false
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -191,8 +192,14 @@ class MainActivity : AppCompatActivity() {
         val screenSize = Size( displayMetrics.widthPixels, displayMetrics.heightPixels )
         Logger.logInfo( "Screen size is $screenSize" )
 
+        /**
+         * .setTargetResolution( screenSize ) -> 카메라의 해상도와 depthmap 비율이 맞지 않음
+         * .setTargetResolution(720, 1280)으로 설정하니 비율은 맞지만 height의 길이가 조금 모자라고,
+         * 디바이스 마다 높이의 길이가 다르기 때문에 해당 부분 다른 기기에서도 테스트 해봐야 함.
+         */
         frameAnalysis = ImageAnalysis.Builder()
-            .setTargetResolution( screenSize )
+            //.setTargetResolution( screenSize )
+            .setTargetResolution(Size(720, 1280))
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .build()
 

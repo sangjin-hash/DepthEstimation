@@ -15,13 +15,17 @@
 package com.shubham0204.ml.depthestimation
 
 import android.graphics.Bitmap
+import android.util.Log
 import android.view.View
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import com.shubham0204.ml.depthestimation.util.BitmapUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
+import org.checkerframework.checker.signedness.qual.Unsigned
 
 // Image Analyser for performing depth estimation on camera frames.
 class FrameAnalyser(
@@ -32,6 +36,7 @@ class FrameAnalyser(
     private var isFrameProcessing = false
     var isComputingDepthMap = false
 
+    var depthMapArray: UByteArray? = null
 
 
     override fun analyze(image: ImageProxy) {
@@ -60,6 +65,29 @@ class FrameAnalyser(
     private suspend fun runModel( inputImage : Bitmap ) = withContext( Dispatchers.Default ) {
         // Compute the depth given the frame Bitmap.
         val output = depthEstimationModel.getDepthMap( inputImage )
+
+        /**
+         * output.config = RGB_565
+         * Model output: 256 x 256
+         * resize 후: 720 x 1280
+         * Bitmap -> Unsigned Byte(8bit) array
+         */
+        val resize_output = BitmapUtils.resizeBitmap( output ,
+            frameBitmap!!.width , frameBitmap!!.height)
+
+        val x = resize_output.width
+        val y = resize_output.height
+        var pixels = IntArray(x*y)
+        resize_output.getPixels(pixels, 0, x, 0, 0, x, y);
+
+        depthMapArray = UByteArray(pixels.size)
+        for(i in pixels.indices) {
+            val pixel = pixels[i]
+            val grayScale =
+                0.299 * (pixel shr 16 and 0xFF) + 0.587 * (pixel shr 8 and 0xFF) + 0.114 * (pixel and 0xFF)
+            depthMapArray!![i] = grayScale.toInt().toUByte()
+        }
+
         withContext( Dispatchers.Main ) {
             // Notify that the current frame is processed and the pipeline is
             // ready for the next frame.

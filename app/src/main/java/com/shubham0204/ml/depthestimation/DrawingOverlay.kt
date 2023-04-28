@@ -20,6 +20,7 @@ import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import com.shubham0204.ml.depthestimation.util.BitmapUtils
 
 // Overlay to display the depth map over the `PreviewView`.
 // See activity_main.xml

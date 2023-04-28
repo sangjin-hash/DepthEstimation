@@ -16,12 +16,12 @@ package com.shubham0204.ml.depthestimation
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.os.Build
+import com.shubham0204.ml.depthestimation.util.BitmapUtils
+import com.shubham0204.ml.depthestimation.util.Logger
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.CompatibilityList
 import org.tensorflow.lite.gpu.GpuDelegate
-import org.tensorflow.lite.nnapi.NnApiDelegate
 import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.common.TensorOperator
 import org.tensorflow.lite.support.common.TensorProcessor
